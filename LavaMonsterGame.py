@@ -6,7 +6,9 @@ class LavaMonsterGame:
 		self.lm = LavaMonster()
 
 	def start(self):
+		self.frame = 0
 		mc.postToChat("Lava Monster!")
+		self.pos = randomSurface() + Vec3(0, 30, 0)
 		self.lm.alive = True
 
 	def hit(self, blockHit):
@@ -15,8 +17,9 @@ class LavaMonsterGame:
 
 class LavaMonster:
 
-	def __init__(self, pos = randomSurface()):
-		self.pos = pos
+	def __init__(self,):
+		self.frame = 0
+		self.pos = randomSurface() + Vec3(0, 30, 0)
 		self.alive = False
 		self.lavaId = 246
 		self.lavaSubId = 0
@@ -39,16 +42,20 @@ class LavaMonster:
 		if self.alive:
 			ptp = mc.player.getPos()
 			prev = self.pos
-			course = ptp + Vec3(0, 1, 0) - self.pos
-			course = Vec3(orZero(course.x), orZero(course.y), orZero(course.z))
-			self.pos = self.pos + course
-			print("Lava Monster: " + str(self.pos))
+			if self.frame % 4 == 0:
+				course = ptp + Vec3(0, 1, 0) - self.pos
+				course = Vec3(orZero(course.x), orZero(course.y), orZero(course.z))
+				self.pos = self.pos + course
+				print("Lava Monster: " + str(self.pos))
+				mc.setBlock(prev, 0, 0)
 			mc.setBlock(self.pos, self.lavaId, self.lavaSubId)
-			mc.setBlock(prev, 0, 0)
 			# flare
 			mc.setBlock(prev + self.flarePositions[self.flare%16], 0, 0)
+			mc.setBlock(prev + self.flarePositions[(self.flare + 4)%16], 0, 0)
 			self.flare = self.flare + 1
 			flarePos = self.pos + self.flarePositions[self.flare%16]
+			mc.setBlock(flarePos, 11, 7)
+			flarePos = self.pos + self.flarePositions[(self.flare + 4)%16]
 			mc.setBlock(flarePos, 11, 7)
 			# kill?
 			d = dist(flarePos, ptp)
@@ -56,6 +63,7 @@ class LavaMonster:
 			if d < 1:
 				mc.postToChat("Ouch! Sick Burn!")
 				teleport(Vec3(-1000, -1000, -1000))
+			self.frame = self.frame + 1
 		else:
 			mc.setBlock(self.pos, 0,0)
 

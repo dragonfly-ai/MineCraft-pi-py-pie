@@ -6,7 +6,7 @@ import random
 import time
 import threading
 
-mc = Minecraft.create("uri.pi", 4711)
+mc = Minecraft.create("192.168.1.206", 4711)
 
 minX = -161
 maxX = 94

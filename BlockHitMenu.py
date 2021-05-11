@@ -33,7 +33,7 @@ class BlockHitMenu:
 					print("TypeError")
 			except ValueError:
 					print("ValueError")
-		time.sleep(0.5)
+		time.sleep(1.0)
 
 	def __init__(self):
 		print("starting BlockHitMenu")
