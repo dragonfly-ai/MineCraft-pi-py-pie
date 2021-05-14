@@ -1,12 +1,12 @@
 from mcpi.minecraft import Minecraft
 from mcpi.minecraft import Vec3
+from math import *
 import mcpi.block as block
-import math
 import random
 import time
 import threading
 
-mc = Minecraft.create("192.168.1.206", 4711)
+mc = Minecraft.create()
 
 minX = -161
 maxX = 94
@@ -125,8 +125,6 @@ class Step:
 
 #Step(Vec3(0, 0, 4), 0).setBlockRelativeTo(Vec3(0,0,0))
 
-
-
 def grandSpiral(segmentCount = 1, postBlock=43, blockData = 3, center = mc.player.getPos()):
 	height = 4 * segmentCount
 	posts = [
@@ -185,4 +183,159 @@ def boom(radius = 1, blockType = 46, blockData = 0, boom = mc.player.getPos()):
 def tnt(boom = mc.player.getPos()):
 	mc.setBlock(boom.x, boom.y-1, boom.z, 46, 1)
 
+class QuadBeam:
+	def __init__(self, duration, start, end, blockId = 0, blockData = 0):
+		self.duration = duration
+		self.start = start
+		self.end = end
+		self.frame = 0
+		self.blockId = blockId
+		self.blockData = blockData
+		self.alive = self.frame < self.duration
+		self.beams = [
+			Beam(self.duration, start + Vec3(-4,3,6), start, blockId, blockData),
+			Beam(self.duration, start + Vec3(4,3,6), start, blockId, blockData),
+			Beam(self.duration, start + Vec3(-4,-3,6), start, blockId, blockData),
+			Beam(self.duration, start + Vec3(4,-3,6), start, blockId, blockData)
+		]
+		line(self.start, self.end, self.blockId, self.blockData)
+	def update(self):
+		self.frame = self.frame + 1
+		if self.frame == self.duration:
+			line(self.start, self.end, 0, 0)
+		self.alive = self.frame < self.duration
+		for b in self.beams:
+			b.update()
 
+class DoubleBeam:
+	def __init__(self, duration, origin, start, end, blockId = 0, blockData = 0):
+		self.duration = duration
+		self.start = start
+		self.end = end
+		self.frame = 0
+		self.blockId = blockId
+		self.blockData = blockData
+		self.alive = self.frame < self.duration
+		self.beams = [
+			Beam(3, origin + Vec3(-8,0,0), start, blockId, blockData),
+			Beam(3, origin + Vec3(8,0,0), start, blockId, blockData)
+		]
+		line(self.start, self.end, self.blockId, self.blockData)
+	def update(self):
+		self.frame = self.frame + 1
+		if self.frame == self.duration:
+			line(self.start, self.end, 0, 0)
+		self.alive = self.frame < self.duration
+		for b in self.beams:
+			b.update()
+
+class Beam:
+	def __init__(self, duration, start, end, blockId = 0, blockData = 0):
+		self.duration = duration
+		self.start = start
+		self.end = end
+		self.frame = 0
+		self.blockId = blockId
+		self.blockData = blockData
+		self.alive = self.frame < self.duration
+		line(self.start, self.end, self.blockId, self.blockData)
+	def update(self):
+		self.frame = self.frame + 1
+		if self.frame == self.duration:
+			line(self.start, self.end, 0, 0)
+		self.alive = self.frame < self.duration
+
+# line implementation from:
+# https://www.geeksforgeeks.org/bresenhams-algorithm-for-3-d-line-drawing/
+
+def line(p1, p2, blockId, blockData):
+    mc.setBlock(p1, blockId, blockData)
+
+    x1 = round(p1.x)
+    y1 = round(p1.y)
+    z1 = round(p1.z)
+
+    x2 = round(p2.x)
+    y2 = round(p2.y)
+    z2 = round(p2.z)
+
+    dx = abs(x2 - x1)
+    dy = abs(y2 - y1)
+    dz = abs(z2 - z1)
+
+    if (x2 > x1):
+        xs = 1
+    else:
+        xs = -1
+    if (y2 > y1):
+        ys = 1
+    else:
+        ys = -1
+    if (z2 > z1):
+        zs = 1
+    else:
+        zs = -1
+  
+    # Driving axis is X-axis"
+    if (dx >= dy and dx >= dz):        
+        p1 = 2 * dy - dx
+        p2 = 2 * dz - dx
+        while (x1 != x2):
+            x1 += xs
+            if (p1 >= 0):
+                y1 += ys
+                p1 -= 2 * dx
+            if (p2 >= 0):
+                z1 += zs
+                p2 -= 2 * dx
+            p1 += 2 * dy
+            p2 += 2 * dz
+            mc.setBlock(Vec3(x1, y1, z1), blockId, blockData)
+  
+    # Driving axis is Y-axis"
+    elif (dy >= dx and dy >= dz):       
+        p1 = 2 * dx - dy
+        p2 = 2 * dz - dy
+        while (y1 != y2):
+            y1 += ys
+            if (p1 >= 0):
+                x1 += xs
+                p1 -= 2 * dy
+            if (p2 >= 0):
+                z1 += zs
+                p2 -= 2 * dy
+            p1 += 2 * dx
+            p2 += 2 * dz
+            mc.setBlock(Vec3(x1, y1, z1), blockId, blockData)
+  
+    # Driving axis is Z-axis"
+    else:        
+        p1 = 2 * dy - dz
+        p2 = 2 * dx - dz
+        while (z1 != z2):
+            z1 += zs
+            if (p1 >= 0):
+                y1 += ys
+                p1 -= 2 * dz
+            if (p2 >= 0):
+                x1 += xs
+                p2 -= 2 * dz
+            p1 += 2 * dy
+            p2 += 2 * dx
+            mc.setBlock(Vec3(x1, y1, z1), blockId, blockData)
+
+
+# find and replace
+
+def findAndReplace(xRange, yRange, zRange, oldId, oldData, newId, newData):
+    for x in xRange:
+        for y in yRange:
+            for z in zRange:
+                loc = Vec3(x, y, z)
+                try:
+                    if mc.getBlock(loc) == oldId:
+                        bd = mc.getBlockWithData(loc)
+                        if bd.id == oldId and bd.data == oldData:
+                            mc.setBlock(loc, newId, newData)
+                except ValueError:
+                        print("error: " + str(loc))

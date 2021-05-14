@@ -1,5 +1,6 @@
 from GhostGame import *
 from LavaMonsterGame import *
+from queue import *
 
 class BlockHitMenu:
 	def glass(self, blockHit):
@@ -15,6 +16,18 @@ class BlockHitMenu:
 		self.gg.hit(blockHit)
 	def lavaMonster(self, blockHit):
 		self.lmg.hit(blockHit)
+	def windowGlass(self, blockHit):
+		barrol = mc.player.getTilePos() + Vec3(0, 1, 0)
+		mc.player.setPos(mc.player.getTilePos() + Vec3(0.5, 0, 0.5))
+		clip = 9.0
+		range = 40.0
+		aim = blockHit.pos - barrol
+		mag = sqrt(aim.x * aim.x + aim.y * aim.y + aim.z * aim.z)
+		scale = clip / mag
+		start = barrol + Vec3(aim.x * scale, aim.y * scale, aim.z * scale)
+		scale = range / mag
+		end = barrol + Vec3(aim.x * scale, aim.y * scale, aim.z * scale)
+		self.beamQueue.put(DoubleBeam(6, self.beamOrigin, start, end, 35, 5))
 
 	def blockHitMenuLoop(self):
 		while True:
@@ -29,22 +42,35 @@ class BlockHitMenu:
 					self.gg.g.update()
 				if self.lmg.lm.alive:
 					self.lmg.lm.update()
-			except TypeError:
-					print("TypeError")
-			except ValueError:
-					print("ValueError")
-		time.sleep(1.0)
+				bq = Queue(10)
+				while not self.beamQueue.empty():
+					b = self.beamQueue.get()
+					b.update()
+					if b.alive:
+						bq.put(b)
+				self.beamQueue = bq
+			except TypeError as te:
+					print(te)
+			except ValueError as ve:
+					print(ve)
+		time.sleep(0.5)
 
 	def __init__(self):
 		print("starting BlockHitMenu")
 		self.gg = GhostGame()
 		self.lmg = LavaMonsterGame()
+		self.beamOrigin = Vec3(11,0,128)
+		self.beamQueue = Queue(10)
 		self.detectors = {
 			46 : self.tnt,
 			30 : self.ghost,
 			20 : self.glass,
+			95 : self.windowGlass,
 			50 : self.torch,
 			246 : self.lavaMonster
 		}
 		self.bhmThread = threading.Thread(target=self.blockHitMenuLoop)
 		self.bhmThread.start()
+
+
+bhm = BlockHitMenu()
