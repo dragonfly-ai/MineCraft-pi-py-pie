@@ -1,7 +1,7 @@
 # MineCraft-pi-py-pie
 Python code that makes minecraft-pi more fun!
 
-In addition to building scripts for making simple shspiral staircases, 
+In addition to building scripts for making simple shapes, spiral stair cases, and Death Stars.
 
 How to use this library:
 
