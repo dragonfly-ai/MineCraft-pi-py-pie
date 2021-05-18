@@ -45,16 +45,16 @@ def fillPlane(seed, dX, dZ, blockId, blockData):
 
 
 # copy blocks from one mc instance to another.
-def copyBlocks(loc, dX, dY, dZ, mcr, rem):
-    for x in range(-dX, dX):
-        for y in range(-dY, dY):
-            for z in range(-dZ, dZ):
-                try:
-                    bd = mc.getBlockWithData(loc + Vec3(x, y, z))
-                    mcr.setBlock(rem + Vec3(x, y, z), bd.id, bd.data)
-                except TypeError:
+def copyBlocks(loc, dX, dY, dZ, mcL, mcR, rem):
+	for x in range(-dX, dX):
+		for y in range(-dY, dY):
+			for z in range(-dZ, dZ):
+				try:
+					bd = mcL.getBlockWithData(loc + Vec3(x, y, z))
+					mcR.setBlock(rem + Vec3(x, y, z), bd.id, bd.data)
+				except TypeError:
 					print("TypeError")
-                except ValueError:
+				except ValueError:
 					print("ValueError")
                 
 # find and replace
@@ -67,3 +67,4 @@ def findAndReplace(xRange, yRange, zRange, oldId, oldData, newId, newData):
                 bd = mc.getBlockWithData(loc)
                 if bd.id == oldId and bd.data == oldData:
                     mc.setBlock(loc, newId, newData)
+                    
