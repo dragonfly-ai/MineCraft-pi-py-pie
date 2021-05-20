@@ -26,7 +26,7 @@ def orZero(c):
 
 def dist(v1, v2):
     d = v1 - v2
-    return math.sqrt(d.x * d.x + d.y * d.y + d.z * d.z)
+    return sqrt(d.x * d.x + d.y * d.y + d.z * d.z)
 
 def randomXZ():
     return Vec3(random.randint(minX, maxX), 0, random.randint(minZ, maxZ))
@@ -365,12 +365,15 @@ def sphere(c, r, blockId, blockData):
         circle(c - dY, rY, blockId, blockData)
 
 def recordBlocks(c, d):
-    for y in range(c.y - d.y, c.y + d.y):
-        for x in range(c.x - d.x, c.x + d.x):
-            for z in range(c.z - d.z, c.z + d.z):
-                b = mc.getBlockWithData(x, y, z)
-                if b.id == 95:
-                    print("mc.setBlock(Vec3(" + str(x) + "," + str(y) + "," + str(z) + ")," + str(b.id) + ", " + str(b.data) + ")")
+    for y in range(-d.y, d.y):
+        for x in range(-d.x, d.x):
+            for z in range(-d.z, d.z):
+                x1 = x + c.x
+                y1 = y + c.y
+                z1 = z + c.z
+                b = mc.getBlockWithData(x1, y1, z1)
+                if not b.id == 0:
+                    print("mc.setBlock(loc + Vec3(" + str(x) + "," + str(y) + "," + str(z) + ")," + str(b.id) + ", " + str(b.data) + ")")
 
 # find and replace
 def findAndReplace(c, d, oldId, oldData, newId, newData):

@@ -20,6 +20,7 @@ bhtThread.start()
 
 
 
+
 #randomize blocks in volume
 d = [1, 3, 4, 5, 7, 12, 13, 14, 15, 16, 17, 20, 21, 22, 24, 30, 35, 41, 42, 43, 44, 45, 48, 49, 53, 56, 57, 67, 71, 73, 82, 89, 95, 98, 246, 247]
 spot = mc.player.getPos()
@@ -68,3 +69,6 @@ def findAndReplace(xRange, yRange, zRange, oldId, oldData, newId, newData):
                 if bd.id == oldId and bd.data == oldData:
                     mc.setBlock(loc, newId, newData)
                     
+
+
+Vec3(-16,6,-125)
