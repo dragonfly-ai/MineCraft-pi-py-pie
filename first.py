@@ -356,6 +356,13 @@ def circle(c, r, blockId, blockData):
         mc.setBlock(c.x + z, c.y, c.z - x, blockId, blockData)
         mc.setBlock(c.x - z, c.y, c.z - x, blockId, blockData)
 
+def disk(c, r, blockId, blockData):
+    r2 = r * r
+    for x in range(-r, r):
+        for z in range(-r, r):
+            if x*x + z*z < r2:
+                mc.setBlock(Vec3(x + c.x, c.y, z + c.z), blockId, blockData)
+
 def sphere(c, r, blockId, blockData):
     circle(c, r, blockId, blockData)
     for y in range(1,r):
@@ -364,6 +371,20 @@ def sphere(c, r, blockId, blockData):
         circle(c + dY, rY, blockId, blockData)
         circle(c - dY, rY, blockId, blockData)
 
+naturalBlocks = {
+    0 : True,
+    1 : True,
+    2 : True,
+    3 : True,
+    7 : True,
+    8 : True,
+    9 : True,
+    10 : True,
+    11 : True,
+    12 : True,
+    13 : True
+}
+
 def recordBlocks(c, d):
     for y in range(-d.y, d.y):
         for x in range(-d.x, d.x):
@@ -371,16 +392,19 @@ def recordBlocks(c, d):
                 x1 = x + c.x
                 y1 = y + c.y
                 z1 = z + c.z
-                b = mc.getBlockWithData(x1, y1, z1)
-                if not b.id == 0:
-                    print("mc.setBlock(loc + Vec3(" + str(x) + "," + str(y) + "," + str(z) + ")," + str(b.id) + ", " + str(b.data) + ")")
+                try:
+                    b = mc.getBlockWithData(x1, y1, z1)
+                    if not b.id in naturalBlocks:
+                        print("mc.setBlock(loc + Vec3(" + str(x) + "," + str(y) + "," + str(z) + ")," + str(b.id) + ", " + str(b.data) + ")")
+                except ValueError:
+                    print("grrr")
 
 # find and replace
 def findAndReplace(c, d, oldId, oldData, newId, newData):
-    for y in range(c.y - d.y, c.y + d.y):
-        for x in range(c.x - d.x, c.x + d.x):
-            for z in range(c.z - d.z, c.z + d.z):
-                loc = Vec3(x, y, z)
+    for y in range(-d.y, d.y):
+        for x in range(-d.x, d.x):
+            for z in range(-d.z, d.z):
+                loc = Vec3(x + c.x, y + c.y, z + c.z)
                 try:
                     if mc.getBlock(x, y, z) == oldId:
                         bd = mc.getBlockWithData(x, y, z)
@@ -388,3 +412,4 @@ def findAndReplace(c, d, oldId, oldData, newId, newData):
                             mc.setBlock(loc, newId, newData)
                 except ValueError:
                         print("error: " + str(loc))
+
