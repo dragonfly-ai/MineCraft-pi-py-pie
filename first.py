@@ -28,8 +28,11 @@ def dist(v1, v2):
     d = v1 - v2
     return sqrt(d.x * d.x + d.y * d.y + d.z * d.z)
 
-def randomXZ():
-    return Vec3(random.randint(minX, maxX), 0, random.randint(minZ, maxZ))
+def randomXZ(y = 0):
+    return Vec3(random.randint(minX, maxX), y, random.randint(minZ, maxZ))
+
+def randative(bounds):
+    return Vec3(random.randint(-bounds.x, bounds.x), random.randint(-bounds.y, bounds.y), random.randint(-bounds.z, bounds.z))
 
 def randomSurface():
     h = -64
@@ -406,8 +409,8 @@ def findAndReplace(c, d, oldId, oldData, newId, newData):
             for z in range(-d.z, d.z):
                 loc = Vec3(x + c.x, y + c.y, z + c.z)
                 try:
-                    if mc.getBlock(x, y, z) == oldId:
-                        bd = mc.getBlockWithData(x, y, z)
+                    if mc.getBlock(loc) == oldId:
+                        bd = mc.getBlockWithData(loc)
                         if bd.id == oldId and bd.data == oldData:
                             mc.setBlock(loc, newId, newData)
                 except ValueError:
