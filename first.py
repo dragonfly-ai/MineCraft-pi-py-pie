@@ -49,12 +49,12 @@ def randomSubterranean():
 
 def randomBurial():
     grave = randomSubterranean()
-    mc.setBlock(grave + Vec3(0, 4, 0), 44, 11)
-    mc.setBlock(grave + Vec3(0, 3, 0), 0, 0)
-    mc.setBlock(grave + Vec3(0, 2, 0), 50, 1)
-    mc.setBlock(grave + Vec3(0, 1, 0), 0, 0)
-    mc.setBlock(grave, 0, 0)
-    teleport(grave)
+    mc.setBlock(grave + Vec3(0, 3, 0), 44, 11)
+    mc.setBlock(grave + Vec3(0, 2, 0), 0, 0)
+    mc.setBlock(grave + Vec3(0, 1, 0), 50, 1)
+    mc.setBlock(grave + Vec3(0, 0, 0), 0, 0)
+    mc.setBlock(grave + Vec3(0, -1, 0), 0, 0)
+    teleport(grave + Vec3(0.5, -1, 0.5))
 
 def teleport(loc = randomSurface()):
     mc.player.setPos(loc)
