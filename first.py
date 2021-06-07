@@ -10,10 +10,13 @@ import threading
 mc = Minecraft.create()
 
 minX = -161
-maxX = 94
+maxX = 97
 
-minZ = -100
-maxZ = 155
+minY = -64
+maxY = 60
+
+minZ = -152
+maxZ = 116
 
 def vequals(v0, v1):
     return v0.x == v1.x and v0.y == v1.y and v0.z == v1.z
@@ -24,9 +27,38 @@ def orZero(c):
     else:
         return c / abs(c)
 
+def magnitude(v):
+    return sqrt(v.x*v.x + v.y*v.y + v.z*v.z)
+
 def dist(v1, v2):
     d = v1 - v2
-    return sqrt(d.x * d.x + d.y * d.y + d.z * d.z)
+    return magnitude(d)
+
+def randomVector(r = 1.0):
+    return scale(
+        normalize(
+            Vec3(
+                random.random() - 0.5,
+                random.random() - 0.5,
+                random.random() - 0.5
+            )
+        ),
+        r
+    )
+
+def normalize(v):
+    mag = magnitude(v)
+    return Vec3(v.x / mag, v.y / mag, v.z / mag)
+
+def scale(v, r):
+    return Vec3(v.x * r, v.y * r, v.z * r)
+
+def alphaBlend(v1, v2, alpha):
+    return Vec3(
+        (v1.x * alpha) + (v2.x * (1.0 - alpha)),
+        (v1.y * alpha) + (v2.y * (1.0 - alpha)),
+        (v1.z * alpha) + (v2.z * (1.0 - alpha))
+    )
 
 def randomXZ(y = 0):
     return Vec3(random.randint(minX, maxX), y, random.randint(minZ, maxZ))
@@ -75,6 +107,21 @@ def plane(r = 1, blockType = 1, blockData = 0, loc = mc.player.getPos()):
 def block(l = 1, w = 1, h = 0, blockType = 1, blockData = 0, loc = mc.player.getPos()):
     mc.setBlocks(loc.x - l, loc.y-h/2, loc.z - w, loc.x + l, loc.y + h/2, loc.z + w, blockType, blockData)
 
+def cone(v, base, height, blockId, blockData, pointsUp = True):
+    def up(y, height):
+        return y / height
+    def down(y, height):
+        return 1 - up(y, height)
+    f = up
+    if pointsUp:
+        f = down
+    for y in range(0, int(height)):
+        disk(
+            v + Vec3(0, y, 0),
+            max(1, round(base*f(y, height))),
+            blockId,
+            blockData
+        )
 
 # mc.setBlocks(-20, 3, -20, 20, 90, 20, 0)
 # all spirals consist of double blocks: 43 and half blocks: 44.
@@ -360,19 +407,22 @@ def circle(c, r, blockId, blockData):
         mc.setBlock(c.x - z, c.y, c.z - x, blockId, blockData)
 
 def disk(c, r, blockId, blockData):
-    r2 = r * r
+    r2 = (r-0.45) * (r-0.45)
     for x in range(-r, r):
         for z in range(-r, r):
             if x*x + z*z < r2:
                 mc.setBlock(Vec3(x + c.x, c.y, z + c.z), blockId, blockData)
 
-def sphere(c, r, blockId, blockData):
-    circle(c, r, blockId, blockData)
+def sphere(c, r, blockId, blockData, solid = False):
+    f = circle
+    if solid:
+        f = disk
+    f(c, r, blockId, blockData)
     for y in range(1,r):
         dY = Vec3(0,y,0)
-        rY = r * cos(asin(y/r))
-        circle(c + dY, rY, blockId, blockData)
-        circle(c - dY, rY, blockId, blockData)
+        rY = int(r * cos(asin(y/r)))
+        f(c + dY, rY, blockId, blockData)
+        f(c - dY, rY, blockId, blockData)
 
 naturalBlocks = {
     0 : True,
@@ -416,3 +466,4 @@ def findAndReplace(c, d, oldId, oldData, newId, newData):
                 except ValueError:
                         print("error: " + str(loc))
 
+#def floodFill(c, oldId, oldData, newId, newData):
