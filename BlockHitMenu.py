@@ -12,10 +12,12 @@ class BlockHitMenu:
         self.gg.start()
     def tnt(self, blockHit, block):
         mc.setBlock(blockHit.pos, 46, 1)
+    def lapis2gabi(self, blockHit, block):
+        mc.setBlock(blockHit.pos, 8, 0)
     def torch(self, blockHit, block):
         mc.setBlock(blockHit.pos, block.id, block.data)
         self.lmg.start()
-    def ghost(self, blockHit, block):
+    def ghost(self, blockHeit, block):
         self.gg.hit(blockHit)
     def lavaMonster(self, blockHit, block):
         self.lmg.hit(blockHit)
@@ -72,6 +74,7 @@ class BlockHitMenu:
         self.beamQueue = Queue(10)
         self.detectors = {
             20 : self.glass,
+            22 : self.lapis2gabi,
             30 : self.ghost,
 #             2 : self.strawberry,
             46 : self.tnt,
