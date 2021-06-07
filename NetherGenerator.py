@@ -50,17 +50,17 @@ def stalagmite(v, base, height, blockId = 89, blockData = 0):
     cone(v, base, height, blockId, blockData, True)
 
 def nether():
-    mc.setBlocks(minX+1, floor, minZ+1, maxX-1, roof, maxZ-1, wallBlock, 0)
+    mc.setBlocks(minX+1, minY, minZ+1, maxX-1, roof, maxZ-1, wallBlock, 0)
 
     nodeOffsets = {}
     radii = {}
 
     x = minX + diameter
-    while x < minX / 2:#maxX - diameter:
+    while x < maxX - diameter:
         z = minZ + diameter
         nodeOffsets[x] = {}
         radii[x] = {}
-        while z < minZ / 2:#maxZ - diameter:
+        while z < maxZ - diameter:
             nodeOffsets[x][z] = randomNodeOffset()
             radii[x][z] = random.randint(3, maxR-1)
             z = z + diameter

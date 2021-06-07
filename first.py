@@ -9,14 +9,14 @@ import threading
 #mc = Minecraft.create("uri.pi", 4711)
 mc = Minecraft.create()
 
-minX = -161
-maxX = 97
+minX = -90
+maxX = 90
 
 minY = -64
-maxY = 60
+maxY = 50
 
-minZ = -152
-maxZ = 116
+minZ = -90
+maxZ = 90
 
 def vequals(v0, v1):
     return v0.x == v1.x and v0.y == v1.y and v0.z == v1.z
