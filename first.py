@@ -222,6 +222,12 @@ def rectRoof(radius, blockType, position):
         d = radius - x
         mc.setBlocks(position.x - d, position.y, position.z + d, position.x - d, position.y + x, position.z + d, blockType, 0)
 
+# couch
+def couch(v, ew = True):
+    ns = not ew
+    mc.setBlock(v, 26, ew + 0)
+    mc.setBlock(v + Vec3(-ew, 0, ns), 26, ew + 2)
+
 # TNT
 def boom(radius = 1, blockType = 46, blockData = 0, boom = mc.player.getPos()):
     mc.setBlock(boom.x, boom.y + 1, boom.z, 0)
@@ -435,7 +441,9 @@ naturalBlocks = {
     10 : True,
     11 : True,
     12 : True,
-    13 : True
+    13 : True,
+    87 : True,
+    89 : True
 }
 
 def recordBlocks(c, d):

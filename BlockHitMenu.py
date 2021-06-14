@@ -3,6 +3,7 @@ from mcpi.minecraft import Vec3
 from mcpi.block import *
 from GhostGame import *
 from LavaMonsterGame import *
+from WaterMonsterGame import *
 from queue import *
 from mcpi.connection import *
 
@@ -14,13 +15,22 @@ class BlockHitMenu:
         mc.setBlock(blockHit.pos, 46, 1)
     def lapis2gabi(self, blockHit, block):
         mc.setBlock(blockHit.pos, 8, 0)
+    def portal(self, blockHit, block):
+        vP = blockHit.pos + Vec3(0, -1, 0)
+        base = mc.getBlock(vP)
+        print(str(base))
     def torch(self, blockHit, block):
         mc.setBlock(blockHit.pos, block.id, block.data)
         self.lmg.start()
-    def ghost(self, blockHeit, block):
+    def diamondOre(self, blockHit, block):
+        mc.setBlock(blockHit.pos, block.id, block.data)
+        self.wmg.start()
+    def ghost(self, blockHit, block):
         self.gg.hit(blockHit)
     def lavaMonster(self, blockHit, block):
         self.lmg.hit(blockHit)
+    def waterMonster(self, blockHit, block):
+        self.wmg.hit(blockHit)
     def windowGlass(self, blockHit, block):
         barrol = mc.player.getTilePos() + Vec3(0, 1, 0)
         mc.player.setPos(mc.player.getTilePos() + Vec3(0.5, 0, 0.5))
@@ -50,6 +60,8 @@ class BlockHitMenu:
                     self.gg.g.update()
                 if self.lmg.lm.alive:
                     self.lmg.lm.update()
+                if self.wmg.wm.alive:
+                    self.wmg.wm.update()
                 bq = Queue(10)
                 while not self.beamQueue.empty():
                     b = self.beamQueue.get()
@@ -70,15 +82,20 @@ class BlockHitMenu:
         print("starting BlockHitMenu")
         self.gg = GhostGame()
         self.lmg = LavaMonsterGame()
+        self.wmg = WaterMonsterGame()
         self.beamOrigin = Vec3(1,40,-96)
         self.beamQueue = Queue(10)
+        self.portals = {}
         self.detectors = {
             20 : self.glass,
             22 : self.lapis2gabi,
             30 : self.ghost,
 #             2 : self.strawberry,
             46 : self.tnt,
+            49 : self.portal,
             50 : self.torch,
+            56 : self.diamondOre,
+            57 : self.waterMonster,
             95 : self.windowGlass,
             246 : self.lavaMonster
         }
