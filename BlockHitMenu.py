@@ -15,6 +15,8 @@ class BlockHitMenu:
         mc.setBlock(blockHit.pos, 46, 1)
     def lapis2gabi(self, blockHit, block):
         mc.setBlock(blockHit.pos, 8, 0)
+    def gold2lava(self, blockHit, block):
+        mc.setBlock(blockHit.pos, 10, 0)
     def portal(self, blockHit, block):
         vP = blockHit.pos + Vec3(0, -1, 0)
         base = mc.getBlock(vP)
@@ -91,6 +93,7 @@ class BlockHitMenu:
             22 : self.lapis2gabi,
             30 : self.ghost,
 #             2 : self.strawberry,
+            41 : self.gold2lava,
             46 : self.tnt,
             49 : self.portal,
             50 : self.torch,

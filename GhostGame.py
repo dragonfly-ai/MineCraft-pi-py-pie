@@ -29,22 +29,22 @@ class Ghost:
 
     def update(self):
         if self.alive:
-            ptp = mc.player.getPos()
+            pid = nearestPlayerId(self.pos)
+            ptp = mc.entity.getPos(pid)
             prev = self.pos
-            if self.frame % 4 == 0:
+            if self.frame % 8 == 0:
                 course = ptp + Vec3(0, 1, 0) - self.pos
-                course = Vec3(orZero(course.x), orZero(course.y), orZero(course.z))
+                course = normalize(Vec3(orZero(course.x), orZero(course.y), orZero(course.z)))
                 self.pos = self.pos + course
                 if mc.getBlock(prev) == self.ghostId:
                     mc.setBlock(prev, 0, 0)
-            print("Ghost: " + str(self.pos))
             if mc.getBlock(self.pos) == 0:
                 mc.setBlock(self.pos, self.ghostId, self.ghostSubId)
-
             d = dist(self.pos, ptp)
-            print("Ghost " + str(d) + " away!")
+            if self.frame % 240 == 0:
+                mc.postToChat("Ghost " + str(d) + " away!")
             if d < 1.1:
-                randomBurial()
+                randomBurial(pid)
                 mc.postToChat("Ghost GOTCHA!")
             self.frame = self.frame + 1
         else:

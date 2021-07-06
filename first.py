@@ -7,6 +7,7 @@ import time
 import threading
 
 #mc = Minecraft.create("uri.pi", 4711)
+#mc = Minecraft.create("192.168.0.6", 4711)
 mc = Minecraft.create()
 
 minX = -90
@@ -46,6 +47,18 @@ def randomVector(r = 1.0):
         r
     )
 
+def nearestPlayerId(v):
+    playerIds = mc.getPlayerEntityIds()
+    nearestPlayer = playerIds.pop()
+    nearestDist = dist(mc.entity.getPos(nearestPlayer), v)
+    while len(playerIds) > 0:
+        candidate = playerIds.pop()
+        tempDist = dist(mc.entity.getPos(candidate), v)
+        if tempDist < nearestDist:
+            nearestPlayer = candidate
+            nearestDist = tempDist
+    return nearestPlayer
+
 def normalize(v):
     mag = magnitude(v)
     return Vec3(v.x / mag, v.y / mag, v.z / mag)
@@ -79,33 +92,42 @@ def randomSubterranean():
         s = randomSurface()
     return Vec3(s.x, s.y - 4, s.z)
 
-def randomBurial():
+def randomBurial(pid):
     grave = randomSubterranean()
     mc.setBlock(grave + Vec3(0, 3, 0), 44, 11)
     mc.setBlock(grave + Vec3(0, 2, 0), 0, 0)
     mc.setBlock(grave + Vec3(0, 1, 0), 50, 1)
     mc.setBlock(grave + Vec3(0, 0, 0), 0, 0)
     mc.setBlock(grave + Vec3(0, -1, 0), 0, 0)
-    teleport(grave + Vec3(0.5, -1, 0.5))
+    teleport(pid, grave + Vec3(0.5, -1, 0.5))
 
-def teleport(loc = randomSurface()):
-    mc.player.setPos(loc)
+def teleport(pid, loc = randomSurface()):
+    mc.entity.setPos(pid, loc)
 
-def square(radius = 1, height = 4, blocktype = 1, blockdata = 0, loc = mc.player.getPos()):
+def square(v, r = 1, height = 4, blockId = 1, blockData = 0):
     for y in range(0, height):
-        for x in range(-radius, radius):
-            mc.setBlock(loc.x+x, loc.y + y, loc.z+radius, blocktype, blockdata)
-            mc.setBlock(loc.x+x, loc.y + y, loc.z-radius, blocktype, blockdata)
-        for z in range(-radius, radius):
-            mc.setBlock(loc.x+radius, loc.y + y, loc.z+z, blocktype, blockdata)
-            mc.setBlock(loc.x-radius, loc.y + y, loc.z+z, blocktype, blockdata)
+        line(Vec3(v.x + r, v.y + y, v.z - r), Vec3(v.x + r, v.y + y, v.z + r), blockId, blockData)
+        line(Vec3(v.x - r, v.y + y, v.z - r), Vec3(v.x - r, v.y + y, v.z + r), blockId, blockData)
+        line(Vec3(v.x - r, v.y + y, v.z + r), Vec3(v.x + r, v.y + y, v.z + r), blockId, blockData)
+        line(Vec3(v.x - r, v.y + y, v.z - r), Vec3(v.x + r, v.y + y, v.z - r), blockId, blockData)
 
-def plane(r = 1, blockType = 1, blockData = 0, loc = mc.player.getPos()):
-    mc.setBlocks(loc.x - r, loc.y-1, loc.z - r, loc.x + r, loc.y, loc.z + r, blockType)
+def plane(v = mc.player.getTilePos(), dXZ = 1, blockType = 1, blockData = 0, ):
+    mc.setBlocks(v.x - dXZ, v.y-1, v.z - dXZ, v.x + dXZ, v.y, v.z + dXZ, blockType, blockData)
 
+def pyramid(v, r, blockId, blockData, stairId):
+    for x in range(0, r):
+        r0 = r - x
+        square(v + Vec3(0, x, 0), r0-1, 1, blockId, blockData)
+        line(Vec3(v.x + r0, v.y + x, v.z - r0), Vec3(v.x + r0, v.y + x, v.z + r0), stairId, 1)
+        line(Vec3(v.x - r0, v.y + x, v.z - r0), Vec3(v.x - r0, v.y + x, v.z + r0), stairId, 0)
+        line(Vec3(v.x - r0, v.y + x, v.z + r0), Vec3(v.x + r0, v.y + x, v.z + r0), stairId, 3)
+        line(Vec3(v.x - r0, v.y + x, v.z - r0), Vec3(v.x + r0, v.y + x, v.z - r0), stairId, 2)
 
-def block(l = 1, w = 1, h = 0, blockType = 1, blockData = 0, loc = mc.player.getPos()):
-    mc.setBlocks(loc.x - l, loc.y-h/2, loc.z - w, loc.x + l, loc.y + h/2, loc.z + w, blockType, blockData)
+def sandStonePyramid(v, r):
+    pyramid(v, r, 24, 2, 128)
+
+def block(v, d, blockId = 1, blockData = 0):
+    mc.setBlocks(v.x - d.x, v.y - d.y, v.z - d.z, v.x + d.x, v.y + d.z, v.z + d.z, blockId, blockData)
 
 def cone(v, base, height, blockId, blockData, pointsUp = True):
     def up(y, height):
@@ -126,7 +148,7 @@ def cone(v, base, height, blockId, blockData, pointsUp = True):
 # mc.setBlocks(-20, 3, -20, 20, 90, 20, 0)
 # all spirals consist of double blocks: 43 and half blocks: 44.
 # materials range from 0-5 for double blocks and lower halves, and 8-13 for upper halves.
-def spiral(height = 4, material = 0, mast = mc.player.getPos()):
+def spiral(mast = mc.player.getPos(), height = 4, material = 0):
     mc.setBlocks(mast + Vec3(-1, 0, -1), mast + Vec3(1, height, 1), 0) # clear the stair well
     mc.setBlocks(mast, mast + Vec3(0, height, 0), 43, material) # central mast
     spiralOffsets = [ Vec3(-1,0,-1), Vec3(-1,0,0), Vec3(-1,1,1), Vec3(0,1,1), Vec3(1,2,1), Vec3(1,2,0), Vec3(1,3,-1), Vec3(0,3,-1), Vec3(-1, 4, -1) ]
@@ -216,11 +238,7 @@ def grandSpiral(segmentCount = 1, postBlock=43, blockData = 3, center = mc.playe
 #grandSpiral(4, 43, 3, p)
 #grandSpiral(10, 20, 3, stairs1)
 #grandSpiral(3, 20, 3, Vec3(0, 0, 9))
-
-def rectRoof(radius, blockType, position):
-    for x in range(0, radius):
-        d = radius - x
-        mc.setBlocks(position.x - d, position.y, position.z + d, position.x - d, position.y + x, position.z + d, blockType, 0)
+        
 
 # couch
 def couch(v, ew = True):
@@ -229,11 +247,11 @@ def couch(v, ew = True):
     mc.setBlock(v + Vec3(-ew, 0, ns), 26, ew + 2)
 
 # TNT
-def boom(radius = 1, blockType = 46, blockData = 0, boom = mc.player.getPos()):
+def boom(r = 1, blockType = 46, blockData = 0, boom = mc.player.getPos()):
     mc.setBlock(boom.x, boom.y + 1, boom.z, 0)
     mc.player.setPos(boom.x, boom.y + 1, boom.z)
-    for x in range(-radius, radius):
-        for z in range(-radius, radius):
+    for x in range(-r, r):
+        for z in range(-r, r):
             mc.setBlock(boom.x+x, boom.y-1, boom.z+z, blockType, blockData)
             mc.setBlock(boom.x+x, boom.y, boom.z+z, blockType, blockData)
 
@@ -446,19 +464,29 @@ naturalBlocks = {
     89 : True
 }
 
-def recordBlocks(c, d):
+def recordBlocks(c, d, exclude = naturalBlocks, name = "blocks"):
+    f = open(name + ".py",'w')
+    f.write("from first import *\n\n")
+    f.write("def " + name + "(v):\n")
     for y in range(-d.y, d.y):
         for x in range(-d.x, d.x):
             for z in range(-d.z, d.z):
                 x1 = x + c.x
                 y1 = y + c.y
                 z1 = z + c.z
-                try:
-                    b = mc.getBlockWithData(x1, y1, z1)
-                    if not b.id in naturalBlocks:
-                        print("mc.setBlock(loc + Vec3(" + str(x) + "," + str(y) + "," + str(z) + ")," + str(b.id) + ", " + str(b.data) + ")")
-                except ValueError:
-                    print("grrr")
+                tries = 0
+                while tries < 3:
+                    try:
+                        b = mc.getBlockWithData(x1, y1, z1)
+                        if not b.id in exclude:
+                            f.write("\tmc.setBlock(v + Vec3(" + str(x) + "," + str(y) + "," + str(z) + ")," + str(b.id) + ", " + str(b.data) + ")\n")
+                            tries = 4
+                        else:
+                            tries = 4
+                    except ValueError:
+                        tries = tries + 1
+                        print("grrr")
+    f.close()
 
 # find and replace
 def findAndReplace(c, d, oldId, oldData, newId, newData):

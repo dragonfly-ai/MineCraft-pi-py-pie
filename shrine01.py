@@ -1,8 +1,4 @@
-from mcpi.minecraft import Minecraft
-from mcpi.minecraft import Vec3
-from mcpi.block import *
-
-mc = Minecraft.create()
+from first import *
 
 def shrine01(loc):
     mc.setBlock(loc + Vec3(-4,-4,-4),1, 0)
