@@ -101,8 +101,8 @@ def randomBurial(pid):
     mc.setBlock(grave + Vec3(0, -1, 0), 0, 0)
     teleport(pid, grave + Vec3(0.5, -1, 0.5))
 
-def teleport(pid, loc = randomSurface()):
-    mc.entity.setPos(pid, loc)
+def teleport(loc = randomSurface()):
+    mc.player.setPos(loc)
 
 def square(v, r = 1, height = 4, blockId = 1, blockData = 0):
     for y in range(0, height):
