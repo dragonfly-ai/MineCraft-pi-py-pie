@@ -323,8 +323,20 @@ class Beam:
 # line implementation from:
 # https://www.geeksforgeeks.org/bresenhams-algorithm-for-3-d-line-drawing/
 
-def line(p1, p2, blockId, blockData):
-    mc.setBlock(p1, blockId, blockData)
+def setBlockIfAirOrWool(v, blockId, blockData):
+    b = mc.getBlock(v)
+    if b == 0 or b == 35:
+        mc.setBlock(v, blockId, blockData)
+
+def safeSetBlock(v, blockId, blockData):
+    if mc.getBlock(v) == 0:
+        mc.setBlock(v, blockId, blockData)
+
+def setBlock(v, blockId, blockData):
+        mc.setBlock(v, blockId, blockData)
+
+def line(p1, p2, blockId, blockData, f = safeSetBlock):
+    f(p1, blockId, blockData)
 
     x1 = round(p1.x)
     y1 = round(p1.y)
@@ -365,7 +377,8 @@ def line(p1, p2, blockId, blockData):
                 p2 -= 2 * dX
             p1 += 2 * dy
             p2 += 2 * dZ
-            mc.setBlock(Vec3(x1, y1, z1), blockId, blockData)
+            #print(str(mc.getBlock(Vec3(x1, y1, z1))))
+            f(Vec3(x1, y1, z1), blockId, blockData)
   
     # Driving axis is Y-axis"
     elif (dy >= dX and dy >= dZ):       
@@ -381,7 +394,7 @@ def line(p1, p2, blockId, blockData):
                 p2 -= 2 * dy
             p1 += 2 * dX
             p2 += 2 * dZ
-            mc.setBlock(Vec3(x1, y1, z1), blockId, blockData)
+            f(Vec3(x1, y1, z1), blockId, blockData)
   
     # Driving axis is Z-axis"
     else:        
@@ -397,7 +410,7 @@ def line(p1, p2, blockId, blockData):
                 p2 -= 2 * dZ
             p1 += 2 * dy
             p2 += 2 * dX
-            mc.setBlock(Vec3(x1, y1, z1), blockId, blockData)
+            f(Vec3(x1, y1, z1), blockId, blockData)
 
 # circle
 # https://rosettacode.org/wiki/Bitmap/Midpoint_circle_algorithm#Python
@@ -497,7 +510,7 @@ def findAndReplace(c, d, oldId, oldData, newId, newData):
                 try:
                     if mc.getBlock(loc) == oldId:
                         bd = mc.getBlockWithData(loc)
-                        if bd.id == oldId and bd.data == oldData:
+                        if bd.id == oldId: # and bd.data == oldData:
                             mc.setBlock(loc, newId, newData)
                 except ValueError:
                         print("error: " + str(loc))
