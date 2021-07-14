@@ -4,6 +4,7 @@ from mcpi.block import *
 from GhostGame import *
 from LavaMonsterGame import *
 from WaterMonsterGame import *
+from projectile import *
 from queue import *
 from mcpi.connection import *
 
@@ -45,6 +46,14 @@ class BlockHitMenu:
         scale = range / mag
         end = barrol + Vec3(aim.x * scale, aim.y * scale, aim.z * scale)
         self.beamQueue.put(QuadBeam(6, self.beamOrigin, start, end, 35, 5))
+    def fireworks(self, blockHit, block):
+        self.fireworkShow.start = blockHit.pos + Vec3(0, 2, 0)
+        if self.fireworkShow.on:
+            mc.postToChat("Fireworks Off!")
+            self.fireworkShow.on = False
+        else:
+            mc.postToChat("Fireworks On!")
+            self.fireworkShow.on = True
 #     def strawberry(self, blockHit, block):
 #         print(str(blockHit.pos))
 #         mc.setBlock(blockHit.pos, 33, 1)
@@ -77,11 +86,11 @@ class BlockHitMenu:
                 print(ve)
             except RequestError as re:
                 print(re)
-                
         time.sleep(0.5)
 
     def __init__(self):
         print("starting BlockHitMenu")
+        self.fireworkShow = FireworkShow(Vec3(0, 40, 0))
         self.gg = GhostGame()
         self.lmg = LavaMonsterGame()
         self.wmg = WaterMonsterGame()
@@ -100,7 +109,8 @@ class BlockHitMenu:
             56 : self.diamondOre,
             57 : self.waterMonster,
             95 : self.windowGlass,
-            246 : self.lavaMonster
+            246 : self.lavaMonster,
+            247 : self.fireworks
         }
         self.bhmThread = threading.Thread(target=self.blockHitMenuLoop)
         self.bhmThread.start()
