@@ -87,35 +87,43 @@ class Firework:
             time.sleep(self.frameRate)
 
 class FireworkShow:
-    def __init__(self, start):
+    def __init__(self, source):
+        self.frame = 0
         self.on = False
-        self.start = start + Vec3(0, 2, 0)
+        self.source = source + Vec3(0, 3, 0)
         self.activeFireworks = []
-        self.thread = threading.Thread(target=self.fireworkShowLoop)
-        self.thread.start()
 
-    def fireworkShowLoop(self):
-        while True:
+    def active(self):
+        return self.on or len(self.activeFireworks) > 0
+
+    def start(self):
+        self.on = True
+        self.frame = 0
+
+    def stop(self):
+        self.on = False
+
+    def step(self):
+        if self.active():
+            self.frame = self.frame + 1
             tempFireworks = []
+            if self.frame > 60 / 0.1:
+                self.on = False
             if self.on:
                 if len(self.activeFireworks) < 1:
                     rV = randomVector(2)
                     rV.y = 0
-                    tempFireworks.append(Firework(self.start, rV + Vec3(0, 7, 0)))
+                    tempFireworks.append(Firework(self.source, rV + Vec3(0, 7, 0)))
                 if len(self.activeFireworks) < 5 and random.random() < 0.1:
                     rV = randomVector(2)
                     rV.y = 0
-                    tempFireworks.append(Firework(self.start, rV + Vec3(0, 7, 0)))
+                    tempFireworks.append(Firework(self.source, rV + Vec3(0, 7, 0)))
             for f in self.activeFireworks:
                 f.step()
                 if not f.finished():
                     tempFireworks.append(f)
             self.activeFireworks = tempFireworks
-            if self.on or len(self.activeFireworks) > 0:
-                time.sleep(0.1)
-            else:
-                time.sleep(5)
-            
+
 
 # f = Firework(start, Vec3(0, 4, 0))
 # f.launch()

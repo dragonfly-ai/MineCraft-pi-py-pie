@@ -47,19 +47,23 @@ class BlockHitMenu:
         end = barrol + Vec3(aim.x * scale, aim.y * scale, aim.z * scale)
         self.beamQueue.put(QuadBeam(6, self.beamOrigin, start, end, 35, 5))
     def fireworks(self, blockHit, block):
-        self.fireworkShow.start = blockHit.pos + Vec3(0, 2, 0)
-        if self.fireworkShow.on:
+        self.fireworkShow.source = blockHit.pos + Vec3(0, 3, 0)
+        if self.fireworkShow.active():
             mc.postToChat("Fireworks Off!")
-            self.fireworkShow.on = False
+            self.fireworkShow.stop()
         else:
             mc.postToChat("Fireworks On!")
-            self.fireworkShow.on = True
+            self.fireworkShow.start()
+            
 #     def strawberry(self, blockHit, block):
 #         print(str(blockHit.pos))
 #         mc.setBlock(blockHit.pos, 33, 1)
 
     def blockHitMenuLoop(self):
         while True:
+            ptp = mc.player.getTilePos()
+#             height = mc.getHeight(ptp.x, ptp.z)
+#             print(str(mc.getBlock(ptp.x, height-1, ptp.z)))
             try:
                 blockHits = mc.events.pollBlockHits()
                 for blockHit in blockHits:
@@ -73,6 +77,8 @@ class BlockHitMenu:
                     self.lmg.lm.update()
                 if self.wmg.wm.alive:
                     self.wmg.wm.update()
+                if self.fireworkShow.active():
+                    self.fireworkShow.step()
                 bq = Queue(10)
                 while not self.beamQueue.empty():
                     b = self.beamQueue.get()
@@ -86,11 +92,11 @@ class BlockHitMenu:
                 print(ve)
             except RequestError as re:
                 print(re)
-        time.sleep(0.5)
+            time.sleep(0.1)
 
     def __init__(self):
         print("starting BlockHitMenu")
-        self.fireworkShow = FireworkShow(Vec3(0, 40, 0))
+        self.fireworkShow = FireworkShow(Vec3(0, 1000, 0))
         self.gg = GhostGame()
         self.lmg = LavaMonsterGame()
         self.wmg = WaterMonsterGame()
