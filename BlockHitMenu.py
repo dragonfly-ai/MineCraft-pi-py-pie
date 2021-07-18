@@ -9,6 +9,10 @@ from queue import *
 from mcpi.connection import *
 
 class BlockHitMenu:
+    def lightFurnace(self, blockHit, block):
+        mc.setBlock(blockHit.pos, 62, block.data)
+    def smotherFurnace(self, blockHit, block):
+        mc.setBlock(blockHit.pos, 61, block.data)
     def glass(self, blockHit, block):
         mc.setBlock(blockHit.pos, 20, 0)
         self.gg.start()
@@ -114,6 +118,8 @@ class BlockHitMenu:
             50 : self.torch,
             56 : self.diamondOre,
             57 : self.waterMonster,
+            61 : self.lightFurnace,
+            62 : self.smotherFurnace,
             95 : self.windowGlass,
             246 : self.lavaMonster,
             247 : self.fireworks
