@@ -123,7 +123,7 @@ def cone(v, base, height, blockId, blockData, pointsUp = True):
             blockData
         )
 
-# mc.setBlocks(-20, 3, -20, 20, 90, 20, 0)
+# mc.setBlocks(-20, 3, -20, 20, 90, 95, 0)
 # all spirals consist of double blocks: 43 and half blocks: 44.
 # materials range from 0-5 for double blocks and lower halves, and 8-13 for upper halves.
 def spiral(mast = mc.player.getPos(), height = 4, material = 0):
@@ -270,8 +270,8 @@ class DoubleBeam:
         self.blockData = blockData
         self.alive = self.frame < self.duration
         self.beams = [
-            Beam(3, origin + Vec3(-8,0,0), start, blockId, blockData),
-            Beam(3, origin + Vec3(8,0,0), start, blockId, blockData)
+            Beam(3, origin + Vec3(0,0,-1), start, blockId, blockData),
+            Beam(3, origin + Vec3(0,0,1), start, blockId, blockData)
         ]
         line(self.start, self.end, self.blockId, self.blockData)
     def update(self):
@@ -291,11 +291,11 @@ class Beam:
         self.blockId = blockId
         self.blockData = blockData
         self.alive = self.frame < self.duration
-        line(self.start, self.end, self.blockId, self.blockData)
+        line(self.start, self.end, self.blockId, self.blockData, setBlock)
     def update(self):
         self.frame = self.frame + 1
         if self.frame == self.duration:
-            line(self.start, self.end, 0, 0)
+            line(self.start, self.end, 0, 0, setBlock)
         self.alive = self.frame < self.duration
 
 # line implementation from:

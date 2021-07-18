@@ -14,8 +14,10 @@ class BlockHitMenu:
     def smotherFurnace(self, blockHit, block):
         mc.setBlock(blockHit.pos, 61, block.data)
     def glass(self, blockHit, block):
-        mc.setBlock(blockHit.pos, 20, 0)
-        self.gg.start()
+        if block.data == 1:
+            self.tieFighterLasers(blockHit, block);
+        else:
+            self.gg.start()
     def tnt(self, blockHit, block):
         mc.setBlock(blockHit.pos, 46, 1)
     def lapis2gabi(self, blockHit, block):
@@ -38,18 +40,16 @@ class BlockHitMenu:
         self.lmg.hit(blockHit)
     def waterMonster(self, blockHit, block):
         self.wmg.hit(blockHit)
-    def windowGlass(self, blockHit, block):
+    def tieFighterLasers(self, blockHit, block):
         barrol = mc.player.getTilePos() + Vec3(0, 1, 0)
-        mc.player.setPos(mc.player.getTilePos() + Vec3(0.5, 0, 0.5))
-        clip = 9.0
-        range = 40.0
-        aim = blockHit.pos - barrol
-        mag = sqrt(aim.x * aim.x + aim.y * aim.y + aim.z * aim.z)
-        scale = clip / mag
-        start = barrol + Vec3(aim.x * scale, aim.y * scale, aim.z * scale)
-        scale = range / mag
-        end = barrol + Vec3(aim.x * scale, aim.y * scale, aim.z * scale)
-        self.beamQueue.put(QuadBeam(6, self.beamOrigin, start, end, 35, 5))
+        print(str(barrol))
+        beamRange = 50.0
+        aim = normalize(blockHit.pos - barrol)
+        print(str(aim))
+        end = barrol + scale(aim, beamRange)
+        self.beamQueue.put(Beam(3, self.beamOrigin + Vec3(0,0,-1), end, 35, 5))
+        self.beamQueue.put(Beam(3, self.beamOrigin + Vec3(0,0,1), end, 35, 5))
+        #DoubleBeam(6, self.beamOrigin, start, end, 35, 5)
     def fireworks(self, blockHit, block):
         self.fireworkShow.source = blockHit.pos + Vec3(0, 3, 0)
         if self.fireworkShow.active():
@@ -70,7 +70,9 @@ class BlockHitMenu:
 #             print(str(mc.getBlock(ptp.x, height-1, ptp.z)))
             try:
                 blockHits = mc.events.pollBlockHits()
+                
                 for blockHit in blockHits:
+                    print(blockHit)
                     block = mc.getBlockWithData(blockHit.pos)
                     print("BlockHit: " + str(blockHit.pos) + " " + str(block))
                     if block.id in self.detectors:
@@ -104,7 +106,7 @@ class BlockHitMenu:
         self.gg = GhostGame()
         self.lmg = LavaMonsterGame()
         self.wmg = WaterMonsterGame()
-        self.beamOrigin = Vec3(1,40,-96)
+        self.beamOrigin = Vec3(-2,0,0)
         self.beamQueue = Queue(10)
         self.portals = {}
         self.detectors = {
@@ -120,7 +122,7 @@ class BlockHitMenu:
             57 : self.waterMonster,
             61 : self.lightFurnace,
             62 : self.smotherFurnace,
-            95 : self.windowGlass,
+            #95 : self.tieFighterLasers,
             246 : self.lavaMonster,
             247 : self.fireworks
         }
