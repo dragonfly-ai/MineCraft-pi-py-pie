@@ -104,28 +104,6 @@ def randomBurial(pid):
 def teleport(loc = randomSurface()):
     mc.player.setPos(loc)
 
-def square(v, r = 1, height = 4, blockId = 1, blockData = 0):
-    for y in range(0, height):
-        line(Vec3(v.x + r, v.y + y, v.z - r), Vec3(v.x + r, v.y + y, v.z + r), blockId, blockData)
-        line(Vec3(v.x - r, v.y + y, v.z - r), Vec3(v.x - r, v.y + y, v.z + r), blockId, blockData)
-        line(Vec3(v.x - r, v.y + y, v.z + r), Vec3(v.x + r, v.y + y, v.z + r), blockId, blockData)
-        line(Vec3(v.x - r, v.y + y, v.z - r), Vec3(v.x + r, v.y + y, v.z - r), blockId, blockData)
-
-def plane(v = mc.player.getTilePos(), dXZ = 1, blockType = 1, blockData = 0, ):
-    mc.setBlocks(v.x - dXZ, v.y-1, v.z - dXZ, v.x + dXZ, v.y, v.z + dXZ, blockType, blockData)
-
-def pyramid(v, r, blockId, blockData, stairId):
-    for x in range(0, r):
-        r0 = r - x
-        square(v + Vec3(0, x, 0), r0-1, 1, blockId, blockData)
-        line(Vec3(v.x + r0, v.y + x, v.z - r0), Vec3(v.x + r0, v.y + x, v.z + r0), stairId, 1)
-        line(Vec3(v.x - r0, v.y + x, v.z - r0), Vec3(v.x - r0, v.y + x, v.z + r0), stairId, 0)
-        line(Vec3(v.x - r0, v.y + x, v.z + r0), Vec3(v.x + r0, v.y + x, v.z + r0), stairId, 3)
-        line(Vec3(v.x - r0, v.y + x, v.z - r0), Vec3(v.x + r0, v.y + x, v.z - r0), stairId, 2)
-
-def sandStonePyramid(v, r):
-    pyramid(v, r, 24, 2, 128)
-
 def block(v, d, blockId = 1, blockData = 0):
     mc.setBlocks(v.x - d.x, v.y - d.y, v.z - d.z, v.x + d.x, v.y + d.z, v.z + d.z, blockId, blockData)
 
@@ -442,6 +420,29 @@ def circle(c, r, blockId, blockData):
         mc.setBlock(c.x - z, c.y, c.z + x, blockId, blockData)
         mc.setBlock(c.x + z, c.y, c.z - x, blockId, blockData)
         mc.setBlock(c.x - z, c.y, c.z - x, blockId, blockData)
+
+
+def square(v, r = 1, height = 4, blockId = 1, blockData = 0, f = setBlock):
+    for y in range(0, height):
+        line(Vec3(v.x + r, v.y + y, v.z - r), Vec3(v.x + r, v.y + y, v.z + r), blockId, blockData, f)
+        line(Vec3(v.x - r, v.y + y, v.z - r), Vec3(v.x - r, v.y + y, v.z + r), blockId, blockData, f)
+        line(Vec3(v.x - r, v.y + y, v.z + r), Vec3(v.x + r, v.y + y, v.z + r), blockId, blockData, f)
+        line(Vec3(v.x - r, v.y + y, v.z - r), Vec3(v.x + r, v.y + y, v.z - r), blockId, blockData, f)
+
+def plane(v = mc.player.getTilePos(), dXZ = 1, blockType = 1, blockData = 0):
+    mc.setBlocks(v.x - dXZ, v.y-1, v.z - dXZ, v.x + dXZ, v.y, v.z + dXZ, blockType, blockData)
+
+def pyramid(v, r, blockId, blockData, stairId):
+    for x in range(0, r):
+        r0 = r - x
+        square(v + Vec3(0, x, 0), r0-1, 1, blockId, blockData)
+        line(Vec3(v.x + r0, v.y + x, v.z - r0), Vec3(v.x + r0, v.y + x, v.z + r0), stairId, 1, setBlock)
+        line(Vec3(v.x - r0, v.y + x, v.z - r0), Vec3(v.x - r0, v.y + x, v.z + r0), stairId, 0, setBlock)
+        line(Vec3(v.x - r0, v.y + x, v.z + r0), Vec3(v.x + r0, v.y + x, v.z + r0), stairId, 3, setBlock)
+        line(Vec3(v.x - r0, v.y + x, v.z - r0), Vec3(v.x + r0, v.y + x, v.z - r0), stairId, 2, setBlock)
+
+def sandStonePyramid(v, r):
+    pyramid(v, r, 24, 2, 128)
 
 def disk(c, r, blockId, blockData):
     r2 = (r-0.45) * (r-0.45)
