@@ -99,7 +99,7 @@ def randomBurial(pid):
     mc.setBlock(grave + Vec3(0, 1, 0), 50, 1)
     mc.setBlock(grave + Vec3(0, 0, 0), 0, 0)
     mc.setBlock(grave + Vec3(0, -1, 0), 0, 0)
-    teleport(pid, grave + Vec3(0.5, -1, 0.5))
+    teleport(grave + Vec3(0.5, -1, 0.5))
 
 def teleport(loc = randomSurface()):
     mc.player.setPos(loc)

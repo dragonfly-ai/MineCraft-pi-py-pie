@@ -32,7 +32,7 @@ class Ghost:
             pid = nearestPlayerId(self.pos)
             ptp = mc.entity.getPos(pid)
             prev = self.pos
-            if self.frame % 8 == 0:
+            if self.frame % 4 == 0:
                 course = ptp + Vec3(0, 1, 0) - self.pos
                 course = normalize(Vec3(orZero(course.x), orZero(course.y), orZero(course.z)))
                 self.pos = self.pos + course
